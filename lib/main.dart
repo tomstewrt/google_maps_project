@@ -134,7 +134,10 @@ class _MyHomePageState extends State<MyHomePage> {
             width: 48,
             child: ElevatedButton(
               onPressed: () {
-                return _buildModal();
+                showDialog(
+                  context: context,
+                  builder: (ctx) => _buildModal(currentLocation),
+                );
               },
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
@@ -156,8 +159,73 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildModal() {
-    return Dialog();
+  Widget _buildModal(LatLng currentLocation) {
+    final size = MediaQuery.of(context).size;
+    const textStyle = TextStyle(
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      color: Colors.white,
+    );
+    const spacer = SizedBox(height: 20);
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      child: Container(
+        margin: const EdgeInsets.only(left: 0, right: 0),
+        child: Stack(
+          children: [
+            Container(
+              width: size.width * 0.7,
+              padding: const EdgeInsets.only(top: 10),
+              margin: const EdgeInsets.only(top: 20, right: 20),
+              color: const Color.fromARGB(211, 196, 196, 196),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Text('Current Location', style: textStyle),
+                    spacer,
+                    Text(
+                      'Latitude: ${currentLocation.latitude.toStringAsFixed(2)}',
+                      style: textStyle,
+                    ),
+                    Text(
+                      'Longitude: ${currentLocation.longitude.toStringAsFixed(2)}',
+                      style: textStyle,
+                    ),
+                    spacer,
+                    const Text('Previous', style: textStyle),
+                    const SizedBox(height: 15),
+                    ...previousLocations.map(
+                      (location) => Container(
+                        margin: const EdgeInsets.symmetric(vertical: 10),
+                        child: Text(
+                          'Lat: ${location.latitude.toStringAsFixed(2)}, Long: ${location.longitude.toStringAsFixed(2)}',
+                          style: textStyle,
+                        ),
+                      ),
+                    ),
+                    spacer,
+                  ],
+                ),
+              ),
+            ),
+            Positioned(
+              right: 0,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pop();
+                },
+                child: const CircleAvatar(
+                  backgroundColor: Color.fromARGB(255, 55, 41, 41),
+                  child: Icon(Icons.close, color: Colors.white),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   // Build the two bottom buttons and their container
