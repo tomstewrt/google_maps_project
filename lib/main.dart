@@ -24,6 +24,19 @@ class MyApp extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            padding: const EdgeInsets.all(5),
+            elevation: 10,
+            textStyle: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
       ),
       home: const MyHomePage(),
     );
@@ -42,6 +55,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late GoogleMapController mapController;
   final zoomLevel = 16.0;
+  final btnBlue = const Color(0xFF2EC1EF);
+  final btnPurple = const Color(0xFF9A2EEF);
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +90,7 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildMap(Position currentLocation) {
     final locationLatLng =
         LatLng(currentLocation.latitude, currentLocation.longitude);
+
     return Stack(
       children: [
         GoogleMap(
@@ -84,7 +100,50 @@ class _MyHomePageState extends State<MyHomePage> {
             zoom: zoomLevel,
           ),
         ),
+        // Buttons container
+        _buildBottomButtons(),
       ],
+    );
+  }
+
+  Widget _buildBottomButtons() {
+    final size = MediaQuery.of(context).size;
+    final btnWidth = size.width * 0.6;
+    const btnHeight = 70.0;
+    final btnSize = Size(btnWidth, btnHeight);
+    return Container(
+      margin: const EdgeInsets.all(10),
+      alignment: Alignment.bottomCenter,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: btnBlue,
+              fixedSize: btnSize,
+            ),
+            onPressed: () {},
+            child: const Text(
+              'Teleport me to somewhere random',
+              textAlign: TextAlign.center,
+            ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: btnPurple,
+              fixedSize: btnSize,
+            ),
+            onPressed: () {
+              LocationHelper.getCurrentLocation().then((location) {});
+            },
+            child: const Text(
+              'Bring me back home',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
