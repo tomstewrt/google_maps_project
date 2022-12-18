@@ -58,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final btnBlue = const Color(0xFF2EC1EF);
   final btnPurple = const Color(0xFF9A2EEF);
   late BitmapDescriptor locationIcon;
+  List<LatLng> previousLocations = [];
 
   @override
   void initState() {
@@ -111,23 +112,52 @@ class _MyHomePageState extends State<MyHomePage> {
     return Stack(
       children: [
         GoogleMap(
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-              target: currentLocation,
-              zoom: zoomLevel,
+          onMapCreated: _onMapCreated,
+          initialCameraPosition: CameraPosition(
+            target: currentLocation,
+            zoom: zoomLevel,
+          ),
+          markers: {
+            Marker(
+              markerId: const MarkerId('location'),
+              anchor: const Offset(0.5, 0.5),
+              icon: locationIcon,
+              position: currentLocation,
             ),
-            markers: {
-              Marker(
-                markerId: const MarkerId('location'),
-                anchor: const Offset(0.5, 0.5),
-                icon: locationIcon,
-                position: currentLocation,
+          },
+        ),
+        Positioned(
+          right: 10,
+          top: 10,
+          child: SizedBox(
+            height: 48,
+            width: 48,
+            child: ElevatedButton(
+              onPressed: () {
+                return _buildModal();
+              },
+              style: ElevatedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(50),
+                ),
+                backgroundColor: Colors.white,
               ),
-            }),
+              child: const Icon(
+                Icons.fullscreen,
+                color: Colors.black,
+                size: 32,
+              ),
+            ),
+          ),
+        ),
         // Buttons container
         _buildBottomButtons(),
       ],
     );
+  }
+
+  Widget _buildModal() {
+    return Dialog();
   }
 
   // Build the two bottom buttons and their container
@@ -148,7 +178,10 @@ class _MyHomePageState extends State<MyHomePage> {
               fixedSize: btnSize,
             ),
             onPressed: () {
-              _moveCameraToPosition(LocationHelper.getRandomPosition());
+              // Get the random position and store it in the previous locations
+              final randomPosition = LocationHelper.getRandomPosition();
+              setState(() => previousLocations.add(randomPosition));
+              _moveCameraToPosition(randomPosition);
             },
             child: const Text(
               'Teleport me to somewhere random',
