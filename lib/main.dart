@@ -57,6 +57,17 @@ class _MyHomePageState extends State<MyHomePage> {
   final zoomLevel = 16.0;
   final btnBlue = const Color(0xFF2EC1EF);
   final btnPurple = const Color(0xFF9A2EEF);
+  late BitmapDescriptor locationIcon;
+
+  @override
+  void initState() {
+    // Set the location icon from the asset image
+    BitmapDescriptor.fromAssetImage(
+            const ImageConfiguration(size: Size(40, 40)),
+            'images/location-icon.png')
+        .then((value) => locationIcon = value);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,22 +106,31 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // Build the map and the overlay
   Widget _buildMap(LatLng currentLocation) {
     return Stack(
       children: [
         GoogleMap(
-          onMapCreated: _onMapCreated,
-          initialCameraPosition: CameraPosition(
-            target: currentLocation,
-            zoom: zoomLevel,
-          ),
-        ),
+            onMapCreated: _onMapCreated,
+            initialCameraPosition: CameraPosition(
+              target: currentLocation,
+              zoom: zoomLevel,
+            ),
+            markers: {
+              Marker(
+                markerId: const MarkerId('location'),
+                anchor: const Offset(0.5, 0.5),
+                icon: locationIcon,
+                position: currentLocation,
+              ),
+            }),
         // Buttons container
         _buildBottomButtons(),
       ],
     );
   }
 
+  // Build the two bottom buttons and their container
   Widget _buildBottomButtons() {
     final size = MediaQuery.of(context).size;
     final btnWidth = size.width * 0.6;
