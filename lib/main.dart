@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import 'helpers/location_helper.dart';
 
@@ -39,6 +40,9 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  late GoogleMapController mapController;
+  final zoomLevel = 16.0;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
             } else if (snapshot.hasData) {
               final Position? currentLocation = snapshot.data;
               if (currentLocation != null) {
-                body = _buildMap();
+                body = _buildMap(currentLocation);
               } else {
                 // IF there is an issue with the location show user error message
                 body = _buildErrorText(
@@ -68,8 +72,20 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildMap() {
-    return SizedBox();
+  Widget _buildMap(Position currentLocation) {
+    final locationLatLng =
+        LatLng(currentLocation.latitude, currentLocation.longitude);
+    return Stack(
+      children: [
+        GoogleMap(
+          onMapCreated: _onMapCreated,
+          initialCameraPosition: CameraPosition(
+            target: locationLatLng,
+            zoom: zoomLevel,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildErrorText(String text) {
@@ -82,5 +98,9 @@ class _MyHomePageState extends State<MyHomePage> {
             ?.copyWith(color: Theme.of(context).errorColor),
       ),
     );
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    mapController = controller;
   }
 }
