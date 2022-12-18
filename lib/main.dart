@@ -69,7 +69,7 @@ class _MyHomePageState extends State<MyHomePage> {
             if (snapshot.hasError) {
               body = _buildErrorText(snapshot.error.toString());
             } else if (snapshot.hasData) {
-              final Position? currentLocation = snapshot.data;
+              final LatLng? currentLocation = snapshot.data;
               if (currentLocation != null) {
                 body = _buildMap(currentLocation);
               } else {
@@ -87,16 +87,21 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  Widget _buildMap(Position currentLocation) {
-    final locationLatLng =
-        LatLng(currentLocation.latitude, currentLocation.longitude);
+  Future<void> _moveCameraToPosition(LatLng latLng) async {
+    await mapController.animateCamera(
+      CameraUpdate.newCameraPosition(
+        CameraPosition(target: latLng, zoom: zoomLevel),
+      ),
+    );
+  }
 
+  Widget _buildMap(LatLng currentLocation) {
     return Stack(
       children: [
         GoogleMap(
           onMapCreated: _onMapCreated,
           initialCameraPosition: CameraPosition(
-            target: locationLatLng,
+            target: currentLocation,
             zoom: zoomLevel,
           ),
         ),
@@ -122,7 +127,9 @@ class _MyHomePageState extends State<MyHomePage> {
               backgroundColor: btnBlue,
               fixedSize: btnSize,
             ),
-            onPressed: () {},
+            onPressed: () {
+              _moveCameraToPosition(LocationHelper.getRandomPosition());
+            },
             child: const Text(
               'Teleport me to somewhere random',
               textAlign: TextAlign.center,
@@ -135,7 +142,9 @@ class _MyHomePageState extends State<MyHomePage> {
               fixedSize: btnSize,
             ),
             onPressed: () {
-              LocationHelper.getCurrentLocation().then((location) {});
+              LocationHelper.getCurrentLocation().then((location) {
+                _moveCameraToPosition(location);
+              });
             },
             child: const Text(
               'Bring me back home',
